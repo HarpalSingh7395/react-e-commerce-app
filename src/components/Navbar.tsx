@@ -20,6 +20,7 @@ import {
     NavigationMenuTrigger,
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import Cart from "./cart";
 
 
 const components: { title: string; href: string; description: string }[] = [
@@ -146,6 +147,8 @@ export default function Navbar() {
                     <NavLinks />
                 </div>
             </div>
+            <div className="items-center flex gap-2">
+            <Cart />
             <Popover>
                 <PopoverTrigger asChild>
                     <Avatar className='cursor-pointer'>
@@ -163,6 +166,7 @@ export default function Navbar() {
                     </div>
                 </PopoverContent>
             </Popover>
+            </div>
 
         </div>
     )

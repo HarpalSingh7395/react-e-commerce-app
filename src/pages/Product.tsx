@@ -24,6 +24,7 @@ import { AppDispatch, RootState } from '@/redux/store';
 import { useParams } from 'react-router';
 import { fetchProducts, selectProductById } from '@/redux/features/product';
 import { addToCart } from '@/redux/features/cart';
+import LoadingBar from '@/components/LoadingBar';
 
 const Product = () => {
   console.log("redering")
@@ -81,7 +82,7 @@ const Product = () => {
 
   const onAddToCart = () => dispatch(addToCart({...product, quantity:  quantity, color: selectedColor, size: selectedSize, price: (product?.price || 0) * quantity }))
 
-  if (status === 'loading') return <div>Loading...</div>;
+  if (status === 'loading') return <div className='size-full flex justify-center items-center'><LoadingBar /></div>;
   if (status === 'failed') return <div>Error: {error}</div>;
 
   if (!product) return (<div className='size-full h-screen flex justify-center items-center'><p>Product not found</p></div>)

@@ -4,6 +4,7 @@ import { AppDispatch, RootState } from '@/redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { fetchProducts } from '@/redux/features/product';
+import LoadingBar from '@/components/LoadingBar';
 
 
 
@@ -17,7 +18,7 @@ export default function Landing() {
   }, [dispatch])
 
   if(status == "loading") {
-    return <>Loading...</>
+    return <div className='size-full flex justify-center items-center'><LoadingBar /></div>
   }
   if(status == "failed") {
     return <div>{error}</div>

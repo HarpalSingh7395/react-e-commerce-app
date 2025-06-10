@@ -140,7 +140,7 @@ const NavLinks = () => <div className='flex gap-6 items-center'>
 
 export default function Navbar() {
     return (
-        <div className='flex gap-4 items-center w-full justify-between px-4 py-2 border shadow-md'>
+        <div className='flex gap-4 items-center w-full justify-between px-4 py-2 border shadow-md fixed top-0 left-0 right-0 z-10 bg-white'>
             <div className='flex gap-4 items-center'>
                 <Logo />
                 <div>

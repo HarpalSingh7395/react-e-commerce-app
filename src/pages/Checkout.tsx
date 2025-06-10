@@ -16,6 +16,8 @@ import {
   Trash2
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RootState } from '@/redux/store';
+import { useSelector } from 'react-redux';
 
 interface CartItem {
   id: string;
@@ -39,6 +41,7 @@ interface CheckoutFormData {
 }
 
 const CheckoutPage: React.FC = () => {
+  const { items, total } = useSelector((state: RootState) => state.cart)
   const [cartItems, setCartItems] = useState<CartItem[]>([
     { id: '1', name: 'Wireless Headphones', price: 99.99, quantity: 2 },
     { id: '2', name: 'Smart Watch', price: 199.99, quantity: 1 }
@@ -72,21 +75,17 @@ const CheckoutPage: React.FC = () => {
     setCartItems(cartItems.filter(item => item.id !== id));
   };
 
-  const calculateSubtotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  };
-
   const applyCoupon = () => {
     // Simple coupon validation logic
     if (formData.couponCode.toUpperCase() === 'SAVE10') {
-      setCouponDiscount(calculateSubtotal() * 0.1);
+      setCouponDiscount(total * 0.1);
     } else {
       setCouponDiscount(0);
     }
   };
 
   const calculateTotal = () => {
-    const subtotal = calculateSubtotal();
+    const subtotal = total;
     const shipping = 9.99;
     return subtotal + shipping - couponDiscount;
   };
@@ -100,13 +99,13 @@ const CheckoutPage: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {cartItems.map(item => (
+          {items.map(item => (
             <div 
               key={item.id} 
               className="flex justify-between items-center border-b py-3"
             >
               <div>
-                <div className="font-medium">{item.name}</div>
+                <div className="font-medium">{item.title}</div>
                 <div className="text-muted-foreground">
                   ${item.price.toFixed(2)} × {item.quantity}
                 </div>
@@ -274,7 +273,7 @@ const CheckoutPage: React.FC = () => {
             <div className="grid gap-4">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${calculateSubtotal().toFixed(2)}</span>
+                <span>${total.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>

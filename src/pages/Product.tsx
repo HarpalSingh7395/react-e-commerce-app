@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -19,13 +19,28 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Heart, Minus, Plus, Share2, ShoppingCart, Star, Truck } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/redux/store';
+import { useParams } from 'react-router';
+import { fetchProducts, selectProductById } from '@/redux/features/product';
+import { addToCart } from '@/redux/features/cart';
 
 const Product = () => {
+  console.log("redering")
+  const { id } = useParams<{ id: string }>();
+  const dispatch = useDispatch<AppDispatch>();
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState('black');
   const [selectedSize, setSelectedSize] = useState('m');
+  const { items, error, status } = useSelector((state: RootState) => state.products);
+  const product = useSelector((state: RootState) =>
+    selectProductById(state, id!)
+  );
 
-  const product = {
+  useEffect(() => {
+    if(items.length == 0) dispatch(fetchProducts())
+  }, [dispatch, items])
+  const dummyProduct = {
     name: "Ergonomic Office Chair",
     price: 299.99,
     rating: 4.8,
@@ -63,25 +78,32 @@ const Product = () => {
     setQuantity(quantity + 1);
   };
 
+
+  const onAddToCart = () => dispatch(addToCart({...product, quantity:  quantity, color: selectedColor, size: selectedSize, price: (product?.price || 0) * quantity }))
+
+  if (status === 'loading') return <div>Loading...</div>;
+  if (status === 'failed') return <div>Error: {error}</div>;
+
+  if (!product) return (<div className='size-full h-screen flex justify-center items-center'><p>Product not found</p></div>)
+
   return (
-    <div className="min-h-screen">
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Image Gallery */}
           <div className="space-y-4">
             <div className="aspect-square">
               <img
-                src={product.images[0]}
-                alt={product.name}
-                className="w-full h-full object-cover rounded-lg"
+                src={product.image}
+                alt={product.title}
+                className="w-full h-full object-contain rounded-lg"
               />
             </div>
             <div className="grid grid-cols-4 gap-4">
-              {product.images.slice(1).map((image, index) => (
+              {dummyProduct.images.slice(1).map((image, index) => (
                 <img
                   key={index}
                   src={image}
-                  alt={`${product.name} view ${index + 2}`}
+                  alt={`${product.title} view ${index + 2}`}
                   className="aspect-square w-full object-cover rounded-lg cursor-pointer hover:opacity-75"
                 />
               ))}
@@ -92,22 +114,21 @@ const Product = () => {
           <div className="space-y-6">
             <div>
               <Badge className="mb-2">New Arrival</Badge>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.title}</h1>
               <div className="flex items-center gap-4">
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-5 h-5 ${
-                        i < Math.floor(product.rating)
+                      className={`w-5 h-5 ${i < Math.floor(product.rating.rate)
                           ? 'text-yellow-400 fill-current'
                           : 'text-gray-300'
-                      }`}
+                        }`}
                     />
                   ))}
-                  <span className="ml-2 text-sm font-medium">{product.rating}</span>
+                  <span className="ml-2 text-sm font-medium">{product.rating.rate}</span>
                 </div>
-                <span className="text-sm text-gray-500">({product.reviews} reviews)</span>
+                <span className="text-sm text-gray-500">({product.rating.count} reviews)</span>
               </div>
             </div>
 
@@ -120,15 +141,14 @@ const Product = () => {
                   Color
                 </label>
                 <div className="flex gap-2">
-                  {product.colors.map((color) => (
+                  {dummyProduct.colors.map((color) => (
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`w-8 h-8 rounded-full border-2 ${
-                        selectedColor === color
+                      className={`w-8 h-8 rounded-full border-2 ${selectedColor === color
                           ? 'border-blue-500'
                           : 'border-transparent'
-                      }`}
+                        }`}
                       style={{ backgroundColor: color }}
                     />
                   ))}
@@ -145,7 +165,7 @@ const Product = () => {
                     <SelectValue placeholder="Select size" />
                   </SelectTrigger>
                   <SelectContent>
-                    {product.sizes.map((size) => (
+                    {dummyProduct.sizes.map((size) => (
                       <SelectItem key={size} value={size}>
                         {size.toUpperCase()}
                       </SelectItem>
@@ -180,7 +200,7 @@ const Product = () => {
 
               {/* Add to Cart */}
               <div className="flex gap-4">
-                <Button className="flex-1 gap-2">
+                <Button className="flex-1 gap-2" onClick={onAddToCart}>
                   <ShoppingCart className="w-4 h-4" />
                   Add to Cart
                 </Button>
@@ -210,22 +230,22 @@ const Product = () => {
                 <TabsTrigger value="features" className="flex-1">Features</TabsTrigger>
                 <TabsTrigger value="specs" className="flex-1">Specifications</TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="description" className="mt-4">
                 <p className="text-gray-600">{product.description}</p>
               </TabsContent>
-              
+
               <TabsContent value="features" className="mt-4">
                 <ul className="list-disc pl-4 space-y-2">
-                  {product.features.map((feature, index) => (
+                  {dummyProduct.features.map((feature, index) => (
                     <li key={index} className="text-gray-600">{feature}</li>
                   ))}
                 </ul>
               </TabsContent>
-              
+
               <TabsContent value="specs" className="mt-4">
                 <dl className="space-y-2">
-                  {Object.entries(product.specs).map(([key, value]) => (
+                  {Object.entries(dummyProduct.specs).map(([key, value]) => (
                     <div key={key} className="flex gap-4">
                       <dt className="font-medium text-gray-900 w-1/3">{key}</dt>
                       <dd className="text-gray-600">{value}</dd>
@@ -237,7 +257,6 @@ const Product = () => {
           </div>
         </div>
       </main>
-    </div>
   );
 };
 

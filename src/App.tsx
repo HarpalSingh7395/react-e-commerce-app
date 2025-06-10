@@ -21,7 +21,7 @@ function App() {
             <Navbar />
 
           </nav>
-          <div className='container mx-auto'>
+          <div className='container mx-auto h-screen pt-16'>
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/products/:id" element={<Product />} />
